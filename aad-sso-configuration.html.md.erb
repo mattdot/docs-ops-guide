@@ -5,23 +5,23 @@ owner: Identity
 
 <strong><%= modified_date %></strong>
 
-This topic describes the process of configuring Azure Active Directory (AAD) as your identity provider (IdP) in Pivotal Cloud Foundry (PCF) and AAD.
+This topic describes the process of configuring Azure Active Directory (AAD) as your identity provider (IdP) in Pivotal Cloud Foundry (PCF) and Azure.
 
-
-## <a id='idp'></a> Configure SAML Integration in PCF
+## <a id='idp'></a> Configure Azure Active Directory SAML Integration in PCF
 
 You can use AAD as your SAML IdP for Ops Manager and Pivotal Application Service (PAS):
 
 * If you want to use AAD as your SAML IdP for Ops Manager, do the following:
-  * [Configure SAML Integration in Ops Manager](#ops-man)
+  * [Configure AAD SAML Integration in Ops Manager](#ops-man)
 
 * If you want to use AAD as your SAML IdP for PAS, do the following:
-  * [Configure SAML Integration in PAS](#pas)
+  * [Configure AAD SAML Integration in PAS](#pas)
 
-### <a id='ops-man'></a> Configure SAML Integration in Ops Manager
+### <a id='ops-man'></a> Configure AAD SAML Integration in Ops Manager
 
 To configure Ops Manager to use AAD as your SAML IdP, do the following:
-1. Download your Ops Manager SP metadata from `https://YOUR-OPS-MANAGER-FQDN/uaa/saml/metadata`.
+1. Download your Ops Manager SP metadata from:<br/>
+`https://YOUR-OPS-MANAGER-FQDN/uaa/saml/metadata`
 1. Create an Ops Manager admin group and assign permissions to sign on to Ops Manager
   1. Using Azure AD create a **PCF Ops Manager Admins** security group (for example, `pcf-ops-man-admins`) 
   1. Add all users who should be Ops Manager admistrators as members of the group.
@@ -29,26 +29,29 @@ To configure Ops Manager to use AAD as your SAML IdP, do the following:
 1. Perform the steps in the [Configure SAML Integration in AAD](#aad) using the following information:
   * **SAML Relying Party metadata**: The metadata file downloaded from `https://YOUR-OPS-MANAGER-FQDN/uaa/saml/metadata`
   * **ENTERPRISE_APP_NAME**: A friendly name shown to SSO users when logging in the app.  For example, `PCF Ops Manager`.
-  * **SSO_ALLOWED_USERS**: The group name of the **PCF Ops Manager Admins** security group. For example, `pcf-ops-man-admins`.
+  * **SSO_ALLOWED_USERS**: The group name of the **PCF Ops Manager Admins** security group in AAD. For example, `pcf-ops-man-admins`.
 
-1. Use the following information for the _Use an Identity Provider_ step:
-  * **SAML admin group**: the **Object ID** of the **PCF Ops Manager Admins** security group.
-  * **SAML groups attribute**: `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups`
-  * **IdP metadata XML or URL**: the **App Federation Metadata Url** of the Enterprise App.  For example, `https://login.microsoftonline.com/TENANT_ID/federationmetadata/2007-06/federationmetadata.xml?appid=ENTERPRISE_APP_ID`
+1. Perform the steps in the _Use an Identity Provider_ section of the Ops Manager Director configuration topic:
+  * Use the following information to configure Ops Manager Director:
+  	* **SAML admin group**: the **Object ID** of the **PCF Ops Manager Admins** security group.
+	    <p class="note"><strong>Note:</strong> When configuring Ops Manager be sure to use the security group's Object Id (GUID) and not the group name.</p>
+  	* **SAML groups attribute**: `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups`
+  	* **IdP metadata XML or URL**: the **App Federation Metadata Url** of the Enterprise App.  For example, `https://login.microsoftonline.com/TENANT_ID/federationmetadata/2007-06/federationmetadata.xml?appid=ENTERPRISE_APP_ID`
 
-1. Perform the steps in the _Use an Identity Provider_ section of the Ops Manager Director configuration topic for your IaaS:
-  * [Configuring BOSH Director on AWS](../customizing/pcf-aws-manual-om-config.html#idp)
-  * [Configuring BOSH Director on Azure](../customizing/azure-om-config.html#idp)
-  * [Configuring BOSH Director on GCP](../customizing/gcp-om-config.html#idp)
-  * [Configuring BOSH Director on OpenStack](../customizing/openstack-om-config.html#idp)
-  * [Configuring BOSH on vSphere](../customizing/vsphere-config.html#idp)
+  * Follow the steps for your IaaS:
+	* [Configuring BOSH Director on AWS](../customizing/pcf-aws-manual-om-config.html#idp)
+	* [Configuring BOSH Director on Azure](../customizing/azure-om-config.html#idp)
+	* [Configuring BOSH Director on GCP](../customizing/gcp-om-config.html#idp)
+	* [Configuring BOSH Director on OpenStack](../customizing/openstack-om-config.html#idp)
+	* [Configuring BOSH on vSphere](../customizing/vsphere-config.html#idp)
 
 <p class="note"><strong>Note:</strong> You can set up SAML access for Ops Manager during the initial PCF installation or later by navigating to <strong>Settings</strong> in the user menu on the Ops Manager Installation Dashboard, configuring the <strong>Authentication Method</strong> pane, and then clicking <strong>Review Pending Changes</strong> and <strong>Apply Changes</strong>.</p>
 
-### <a id='pas'></a> Configure SAML Integration in PAS
+### <a id='pas'></a> Configure AAD SAML Integration in PAS
 
 To configure PAS to use ADFS as your SAML IdP, do the following:
-1. Download your PAS SP metadata from `https://login.YOUR-SYSTEM-DOMAIN/saml/metadata`.
+1. Download your PAS SP metadata from <br/>
+`https://login.YOUR-SYSTEM-DOMAIN/saml/metadata`.
 1. Create a **PCF PAS Users** group and assign permissions to sign on to Pivotal Application Service UAA
   1. Using Azure AD create a **PCF PAS Users** security group (for example, `pcf-pas-users`)
   1. Add all users who should be PAS Users as members of the group.
@@ -57,19 +60,16 @@ To configure PAS to use ADFS as your SAML IdP, do the following:
   * **SAML Relying Party metadata**: The metadata file downloaded from `https://login.YOUR-SYSTEM-DOMAIN/saml/metadata`
   * **ENTERPRISE_APP_NAME**: A friendly name shown to SSO users when logging in the app.  For example, `Pivotal Application Service`.
   * **SSO_ALLOWED_USERS**: The group name of the **PCF PAS Users** security group. For example, `pcf-pas-users`.
-1. Use the following information for the _Use an Identity Provider_ step:
-  * **Provider Metadata URL**: the **App Federation Metadata Url** of the Enterprise App.  For example, `https://login.microsoftonline.com/TENANT_ID/federationmetadata/2007-06/federationmetadata.xml?appid=ENTERPRISE_APP_ID`
-  * **Name ID Format**: Email Address
-  * **First Name Attribute**: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname
-  * **Last Name Attribute**: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname
-  * **Email Attribute**: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress
-  * **External Groups Attribute**: http://schemas.microsoft.com/ws/2008/06/identity/claims/groups
-  * **Sign Authentication Requests**: Yes
-  * **Require Signed Assertions**: Yes
-
 1. Perform the steps in the [Configure PCF as a Service Provider for SAML
-](./auth-sso.html#configure-pcf-for-saml) section of the _Configuring Authentication and Enterprise SSO for PAS_ topic.
-
+](./auth-sso.html#configure-pcf-for-saml) section of the _Configuring Authentication and Enterprise SSO for PAS_ topic using the following information:
+  * **Provider Metadata URL**: the **App Federation Metadata Url** of the Enterprise App.  For example, `https://login.microsoftonline.com/TENANT_ID/federationmetadata/2007-06/federationmetadata.xml?appid=ENTERPRISE_APP_ID`
+  * **Name ID Format**: `Email Address`
+  * **First Name Attribute**: `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname`
+  * **Last Name Attribute**: `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname`
+  * **Email Attribute**: `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress`
+  * **External Groups Attribute**: `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups`
+  * **Sign Authentication Requests**: `Yes`
+  * **Require Signed Assertions**: `Yes`
 
 ## <a id='aad'></a> Configure SAML Integration in AAD
 Configuring SAML Integration in AAD expects the following prerequisite information:
@@ -106,8 +106,8 @@ To designate PCF as your SAML service provider (SP) in AAD, do the following:
 1. Enable AAD to include security groups in authorization claims:
   1. Open a terminal window where the **Azure CLI 2.0** is installed.
   1. Ensure you are logged into the same Azure AD tenant where you created the Enterprise Application using 
-  <pre class="terminal">$ az login -t TENANT_ID</pre>
-  1. Create a file named `pcf-saml-manifest.json` with the following contents
+  		<pre class="terminal">$ az login -t TENANT_ID</pre>
+  1. Create a file named `pcf-saml-manifest.json` with the following contents which will be used to request the `UserProfile.Read`, `Directory.Read`, `Group.Read.All`, `User.ReadBasic.All`, and  `User.Read.All` graph permissions be granted to the Enterprise Application.
 ```
 [
     {
@@ -137,7 +137,9 @@ To designate PCF as your SAML service provider (SP) in AAD, do the following:
     }
 ]
 ```
-  1. Execute the following command: 
-  <pre class="terminal">$ az ad app update --id AAD_APPLICATION_ID --set groupMembershipClaims=SecurityGroup --required-resource-accesses @pcf-saml-manifest.json</pre>
+  1. Execute the following command to request permissions and to ensure group membership is included in SAML claims: 
+		<pre class="terminal">$ az ad app update --id AAD_APPLICATION_ID --set groupMembershipClaims=SecurityGroup --required-resource-accesses @pcf-saml-manifest.json</pre>
   1. (Optional) If this command was run by someone without authority to grant Microsoft graph permissions, an administrator may have to review and approve the app's permissions using the Azure portal.
-1. Continue with the steps in [Configure SAML Integration in Ops Manager](#ops-man) or [Configure SAML Integration in PAS](#pas)
+1. Continue with the steps in 
+  * [Configure AAD SAML Integration in Ops Manager](#ops-man)
+  * [Configure AAD SAML Integration in PAS](#pas)
